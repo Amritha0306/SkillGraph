@@ -17,11 +17,6 @@ class DatabaseManager {
     }
 
     try {
-      // Detect if URI uses an encrypted scheme (bolt+s:// or neo4j+s://)
-      const isEncrypted =
-        config.cognodb.uri.startsWith('bolt+s://') ||
-        config.cognodb.uri.startsWith('neo4j+s://');
-
       this.driver = neo4j.driver(
         config.cognodb.uri,
         neo4j.auth.basic(config.cognodb.username, config.cognodb.password),
@@ -30,10 +25,7 @@ class DatabaseManager {
           maxConnectionPoolSize: 50,
           connectionAcquisitionTimeout: 20000, // 20 seconds
           connectionTimeout: 20000,
-          disableLosslessIntegers: true, // converts neo4j Integers directly to JS numbers
-          // Explicitly set TLS when using bolt+s:// or neo4j+s:// to avoid ECONNRESET on Render
-          encrypted: isEncrypted ? 'ENCRYPTION_ON' : 'ENCRYPTION_OFF',
-          trust: isEncrypted ? 'TRUST_SYSTEM_CA_SIGNED_CERTIFICATES' : 'TRUST_ALL_CERTIFICATES',
+          disableLosslessIntegers: true,
         }
       );
       console.log(`[CognoDB] Initialized driver connection to ${config.cognodb.uri}`);
