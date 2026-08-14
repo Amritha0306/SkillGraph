@@ -8,8 +8,23 @@ export function createApp(): Express {
   const app = express();
 
   // Middleware
+  const allowedOrigins = [
+    config.clientUrl,
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+  ].filter(Boolean);
+
   app.use(cors({
-    origin: [config.clientUrl, 'http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. curl, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+      // Allow any vercel.app subdomain (covers all preview + production deployments)
+      if (origin.endsWith('.vercel.app')) return callback(null, true);
+      // Allow explicitly configured origins
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: Origin '${origin}' not allowed`));
+    },
     credentials: true,
   }));
   app.use(express.json());
