@@ -6,9 +6,6 @@
       "ES2022",
       "dom"
     ],
-    "types": [
-      "node"
-    ],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
